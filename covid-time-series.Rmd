@@ -1,0 +1,33 @@
+---
+title: "COVID-19 time series analysis"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(fs)
+library(lubridate)
+library(here)
+library(skimr)
+library(janitor)
+
+```
+
+## Initialise
+
+```{r init}
+case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
+dhb_name <- "Capital and Coast"
+```
+
+## Download latest data
+
+```{r download}
+cases_df <- read_csv(case_data_url) %>% 
+  clean_names()
+
+head(cases_df)
+
+```
+
