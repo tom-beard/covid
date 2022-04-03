@@ -11,7 +11,8 @@ library(lubridate)
 library(here)
 library(skimr)
 library(janitor)
-
+library(tsibble)
+library(feasts)
 ```
 
 ## Initialise
@@ -51,17 +52,65 @@ It might be good to add Hutt to CCDHB later.
 ```{r wellington}
 dhb_cases_df <- cases_by_dhb_df %>% 
   filter(dhb == dhb_name) %>% 
-  filter(report_date >= ymd(20220201))
+  filter(report_date >= ymd(20220201)) %>% 
+  group_by(report_date, dhb) %>% 
+  summarise(cases = sum(n, na.rm = FALSE))
+
+wfh_start_date <- ymd(20220221)
 
 dhb_cases_df %>%
-  group_by(report_date, dhb) %>% 
-  summarise(cases = sum(n, na.rm = FALSE)) %>% 
   ggplot() +
+  geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
   geom_line(aes(x = report_date, y = cases)) +
   geom_point(aes(x = report_date, y = cases)) +
+  scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
-  labs(x = "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
+  labs(x = "", y= "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
   theme_minimal()
   
 ```
 
+## Basic timeseries analysis
+
+To best capture the weekly seasonality, it might be best to start modelling from about the time that the reporting process was changed by RATs: probably about the beginning of March.
+
+```{r basic-ts}
+
+# model_start_date <- ymd(20220101)
+model_start_date <- ymd(20220301)
+
+dhb_cases_ts <- dhb_cases_df %>% 
+  ungroup() %>% 
+  filter(report_date >= model_start_date) %>% 
+  select(report_date, cases) %>% 
+  as_tsibble(index = report_date) %>% 
+  fill_gaps(cases = 0) %>% 
+  replace_na(list(cases = 0))
+
+dhb_cases_stl <- dhb_cases_ts %>% 
+  model(STL(cases ~ trend(window = 7 * 3) + season(period = "1 week", window = Inf))) %>% 
+  components()
+
+dhb_cases_stl %>% 
+  autoplot()
+
+```
+
+```{r seasonally-adjusted}
+
+dhb_cases_stl %>% 
+  select(report_date, cases, trend, season_adjust) %>% 
+  ggplot() +
+  # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
+  geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
+  geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
+  # geom_line(aes(x = report_date, y = cases)) +
+  geom_point(aes(x = report_date, y = cases)) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  scale_y_continuous(limits = c(0, NA)) +
+  labs(x = "", y= "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
+  theme_minimal()
+
+```
+
+For more rigourous analysis, and before we try any forecasting, we should do a log + 1 transform, to allow for multiplicative seasonality.
