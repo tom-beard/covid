@@ -29,5 +29,39 @@ cases_df <- read_csv(case_data_url) %>%
 
 head(cases_df)
 
+skim(cases_df)
+
+```
+
+## DHB summaries
+
+```{r dhb-summary}
+
+cases_by_dhb_df <- cases_df %>% 
+  count(report_date, dhb, case_status)
+
+cases_by_dhb_df
+
+```
+
+## Wellington figures
+
+It might be good to add Hutt to CCDHB later.
+
+```{r wellington}
+dhb_cases_df <- cases_by_dhb_df %>% 
+  filter(dhb == dhb_name) %>% 
+  filter(report_date >= ymd(20220201))
+
+dhb_cases_df %>%
+  group_by(report_date, dhb) %>% 
+  summarise(cases = sum(n, na.rm = FALSE)) %>% 
+  ggplot() +
+  geom_line(aes(x = report_date, y = cases)) +
+  geom_point(aes(x = report_date, y = cases)) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  labs(x = "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
+  theme_minimal()
+  
 ```
 
