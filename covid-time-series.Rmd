@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.width = 8)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8, dev = "png", dev.args = list(type = "cairo-png"))
 library(tidyverse)
 library(fs)
 library(lubridate)
@@ -13,6 +13,7 @@ library(skimr)
 library(janitor)
 library(tsibble)
 library(feasts)
+library(glue)
 ```
 
 ## Initialise
@@ -20,7 +21,7 @@ library(feasts)
 ```{r init}
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
 dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
-dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
+dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 ```
 
 ## Download latest data

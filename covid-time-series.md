@@ -6,7 +6,7 @@ COVID-19 time series analysis
 ``` r
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
 dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
-dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
+dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 ```
 
 ## Download latest data
