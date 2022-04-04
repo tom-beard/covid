@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 8)
 library(tidyverse)
 library(fs)
 library(lubridate)
@@ -30,9 +30,8 @@ dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
 cases_df <- read_csv(case_data_url) %>% 
   clean_names()
 
-head(cases_df)
-
-skim(cases_df)
+# head(cases_df)
+# skim(cases_df)
 
 ```
 
@@ -63,12 +62,13 @@ wfh_start_date <- ymd(20220221)
 dhb_cases_df %>%
   ggplot() +
   geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
+  geom_hline(yintercept = 0, colour = "grey50") +
   geom_col(aes(x = report_date, y = cases, fill = dhb), position = "stack", width = 0.8) +
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_fill_viridis_d(option = "D", guide = guide_legend(title = "DHB")) +
-  labs(x = "", y= "",
-       title = str_glue("Daily COVID-19 Cases for {dhb_names_label} DHBs")) +
+  labs(x = "", y= "", title = "Daily COVID-19 Cases",
+       subtitle = str_glue("for {dhb_names_label} DHBs")) +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
   
@@ -80,7 +80,6 @@ To best capture the weekly seasonality, it might be best to start modelling from
 
 ```{r basic-ts}
 
-# model_start_date <- ymd(20220101)
 model_start_date <- ymd(20220301)
 
 dhb_cases_ts <- dhb_cases_df %>% 
@@ -108,13 +107,14 @@ dhb_cases_stl %>%
   select(report_date, cases, trend, season_adjust) %>% 
   ggplot() +
   # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
+  geom_hline(yintercept = 0, colour = "grey50") +
   geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
   geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "",
-       title = str_glue("Daily COVID-19 Cases for {dhb_names_label} DHBs")) +
+  labs(x = "", y= "", title = "Total daily COVID-19 Cases (with seasonal adjustment and trend)",
+       subtitle = str_glue("for {dhb_names_label} DHBs")) +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
 
