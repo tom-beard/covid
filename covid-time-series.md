@@ -41,27 +41,12 @@ cases_df <- read_csv(case_data_url) %>%
 cases_by_dhb_df <- cases_df %>% 
   count(report_date, dhb, case_status)
 
-cases_by_dhb_df
+# cases_by_dhb_df
 ```
-
-    ## # A tibble: 3,572 x 4
-    ##    report_date dhb               case_status     n
-    ##    <date>      <chr>             <chr>       <int>
-    ##  1 2020-02-26  Auckland          Confirmed       1
-    ##  2 2020-03-02  Waitemata         Confirmed       1
-    ##  3 2020-03-04  Counties Manukau  Confirmed       1
-    ##  4 2020-03-04  Waitemata         Confirmed       1
-    ##  5 2020-03-05  Counties Manukau  Probable        1
-    ##  6 2020-03-05  Waitemata         Probable        1
-    ##  7 2020-03-06  Counties Manukau  Confirmed       1
-    ##  8 2020-03-12  Counties Manukau  Confirmed       1
-    ##  9 2020-03-13  Southern          Confirmed       1
-    ## 10 2020-03-14  Capital and Coast Confirmed       1
-    ## # ... with 3,562 more rows
 
 ## Wellington figures
 
-Include Hutt and Wairarapa as well as CCDHB.
+Including Hutt and Wairarapa as well as CCDHB.
 
 ``` r
 dhb_cases_df <- cases_by_dhb_df %>% 
@@ -115,7 +100,9 @@ dhb_cases_stl <- dhb_cases_ts %>%
   components()
 
 dhb_cases_stl %>% 
-  autoplot()
+  autoplot() +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
 ```
 
 ![](covid-time-series_files/figure-markdown_github/basic-ts-1.png)
@@ -156,11 +143,7 @@ minima <- dhb_cases_stl_df %>%
 
 maxima <- dhb_cases_stl_df %>% 
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
-
-round(maxima$cases / minima$cases, digits = 1)
 ```
-
-    ## [1] 2.8
 
 Looking at raw case numbers, the peak on 2022-03-09 was about 2.8 times what it is now.
 

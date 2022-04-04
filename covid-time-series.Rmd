@@ -21,7 +21,6 @@ library(feasts)
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
 dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
 dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
-
 ```
 
 ## Download latest data
@@ -29,26 +28,22 @@ dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
 ```{r download}
 cases_df <- read_csv(case_data_url) %>% 
   clean_names()
-
 # head(cases_df)
 # skim(cases_df)
-
 ```
 
 ## DHB summaries
 
 ```{r dhb-summary}
-
 cases_by_dhb_df <- cases_df %>% 
   count(report_date, dhb, case_status)
 
-cases_by_dhb_df
-
+# cases_by_dhb_df
 ```
 
 ## Wellington figures
 
-Include Hutt and Wairarapa as well as CCDHB.
+Including Hutt and Wairarapa as well as CCDHB.
 
 ```{r wellington}
 dhb_cases_df <- cases_by_dhb_df %>% 
@@ -80,7 +75,6 @@ dhb_cases_df %>%
 To best capture the weekly seasonality, it might be best to start modelling from about the time that the reporting process was changed by RATs: probably about the beginning of March.
 
 ```{r basic-ts}
-
 model_start_date <- ymd(20220301)
 
 dhb_cases_ts <- dhb_cases_df %>% 
@@ -98,12 +92,13 @@ dhb_cases_stl <- dhb_cases_ts %>%
   components()
 
 dhb_cases_stl %>% 
-  autoplot()
+  autoplot() +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
 
 ```
 
 ```{r seasonally-adjusted}
-
 dhb_cases_stl_df <- dhb_cases_stl %>% 
   select(report_date, cases, trend, season_adjust) %>% 
     as_tibble()
@@ -123,7 +118,6 @@ dhb_cases_stl_df %>%
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
-
 ```
 
 ## Comparison to peak cases
@@ -138,9 +132,6 @@ minima <- dhb_cases_stl_df %>%
 
 maxima <- dhb_cases_stl_df %>% 
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
-
-round(maxima$cases / minima$cases, digits = 1)
-
 ```
 
 Looking at raw case numbers, the peak on `r peak_cases$report_date` was about `r round(maxima$cases / minima$cases, digits = 1)` times what it is now.
