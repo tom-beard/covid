@@ -120,8 +120,11 @@ dhb_cases_stl %>%
 ![](covid-time-series_files/figure-markdown_github/basic-ts-1.png)
 
 ``` r
-dhb_cases_stl %>% 
+dhb_cases_stl_df <- dhb_cases_stl %>% 
   select(report_date, cases, trend, season_adjust) %>% 
+    as_tibble()
+
+dhb_cases_stl_df %>% 
   ggplot() +
   # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
   geom_hline(yintercept = 0, colour = "grey50") +
@@ -131,11 +134,40 @@ dhb_cases_stl %>%
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
   labs(x = "", y= "", title = "Total daily COVID-19 Cases (with seasonal adjustment and trend)",
-       subtitle = str_glue("for {dhb_names_label} DHBs")) +
+       subtitle = str_glue("for {dhb_names_label} DHBs"),
+       caption = "Red line: cases adjusted for weekly pattern. Blue line: trend component") +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
 ```
 
 ![](covid-time-series_files/figure-markdown_github/seasonally-adjusted-1.png)
 
-For more rigourous analysis, and before we try any forecasting, we should do a log + 1 transform, to allow for multiplicative seasonality.
+## Comparison to peak cases
+
+``` r
+peak_cases <- dhb_cases_stl_df %>% 
+  slice_max(order_by = cases, n = 1)
+
+minima <- dhb_cases_stl_df %>% 
+  filter(report_date >= peak_cases$report_date) %>% 
+  summarise(cases = min(cases), adjusted = min(season_adjust), trend = min(trend))
+
+maxima <- dhb_cases_stl_df %>% 
+  summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
+
+round(maxima$cases / minima$cases, digits = 1)
+```
+
+    ## [1] 2.8
+
+Looking at raw case numbers, the peak on 2022-03-09 was about 2.8 times what it is now.
+
+But when adjusting for the weekly pattern, it was 2.1 times the current adjusted value, and the trend was about 1.9 times the current trend line.
+
+While the trend is possibly over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
+
+## Notes
+
+The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak in these DHBs.
+
+For a more rigorous analysis, and before trying any forecasting, we should do a log + 1 transform to allow for multiplicative seasonality.
