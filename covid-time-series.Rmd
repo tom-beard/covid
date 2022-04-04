@@ -68,7 +68,8 @@ dhb_cases_df %>%
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_fill_viridis_d(option = "D", guide = guide_legend(title = "DHB")) +
   labs(x = "", y= "", title = "Daily COVID-19 Cases",
-       subtitle = str_glue("for {dhb_names_label} DHBs")) +
+       subtitle = str_glue("for {dhb_names_label} DHBs"),
+       caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
   
@@ -116,9 +117,10 @@ dhb_cases_stl_df %>%
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = "Total daily COVID-19 Cases (with seasonal adjustment and trend)",
-       subtitle = str_glue("for {dhb_names_label} DHBs"),
-       caption = "Red line: cases adjusted for weekly pattern. Blue line: trend component") +
+  labs(x = "", y= "", title = "Total daily COVID-19 Cases",
+       subtitle = str_glue("For {dhb_names_label} DHBs\n", 
+                           "Red line: cases adjusted for weekly pattern. Blue line: trend component."),
+       caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
 
