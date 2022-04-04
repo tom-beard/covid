@@ -5,7 +5,8 @@ COVID-19 time series analysis
 
 ``` r
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-dhb_name <- "Capital and Coast"
+dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
 ```
 
 ## Download latest data
@@ -15,11 +16,14 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 693219 Columns: 7
+    ## Warning: One or more parsing issues, see `problems()` for details
+
+    ## Rows: 703467 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## chr  (6): Case Status, Sex, Age group, DHB, Overseas travel, Historical
+    ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
+    ## lgl  (1): Historical
     ## date (1): Report Date
 
     ## 
@@ -31,14 +35,14 @@ head(cases_df)
 ```
 
     ## # A tibble: 6 x 7
-    ##   report_date case_status sex    age_group dhb        overseas_travel historical
-    ##   <date>      <chr>       <chr>  <chr>     <chr>      <chr>           <chr>     
-    ## 1 2022-04-02  Confirmed   Female 20 to 29  Waitemata  No              <NA>      
-    ## 2 2022-04-02  Confirmed   Male   60 to 69  Hutt Vall~ Unknown         <NA>      
-    ## 3 2022-04-02  Confirmed   Female 20 to 29  Hutt Vall~ Unknown         <NA>      
-    ## 4 2022-04-02  Confirmed   Male   20 to 29  Canterbury Unknown         <NA>      
-    ## 5 2022-04-02  Confirmed   Male   0 to 9    Capital a~ Unknown         <NA>      
-    ## 6 2022-04-02  Confirmed   Female 40 to 49  Canterbury Unknown         <NA>
+    ##   report_date case_status sex   age_group dhb           overseas_travel historical
+    ##   <date>      <chr>       <chr> <chr>     <chr>         <chr>           <lgl>     
+    ## 1 2022-04-03  Confirmed   Male  40 to 49  Whanganui     Unknown         NA        
+    ## 2 2022-04-03  Confirmed   Male  70 to 79  Bay of Plenty Unknown         NA        
+    ## 3 2022-04-03  Confirmed   Male  0 to 9    Auckland      Unknown         NA        
+    ## 4 2022-04-03  Confirmed   Male  60 to 69  Wairarapa     Unknown         NA        
+    ## 5 2022-04-03  Confirmed   Male  10 to 19  Auckland      Unknown         NA        
+    ## 6 2022-04-03  Confirmed   Male  40 to 49  Hawke's Bay   Unknown         NA
 
 ``` r
 skim(cases_df)
@@ -47,12 +51,13 @@ skim(cases_df)
 |                                                  |           |
 |:-------------------------------------------------|:----------|
 | Name                                             | cases\_df |
-| Number of rows                                   | 693219    |
+| Number of rows                                   | 703467    |
 | Number of columns                                | 7         |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_   |           |
 | Column type frequency:                           |           |
-| character                                        | 6         |
+| character                                        | 5         |
 | Date                                             | 1         |
+| logical                                          | 1         |
 | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |           |
 | Group variables                                  | None      |
 
@@ -65,13 +70,18 @@ skim(cases_df)
 | age\_group       |           0|               1|    3|    8|      0|         11|           0|
 | dhb              |           0|               1|    5|   30|      0|         22|           0|
 | overseas\_travel |           0|               1|    2|    7|      0|          3|           0|
-| historical       |      692786|               0|    3|    3|      0|          1|           0|
 
 **Variable type: Date**
 
 | skim\_variable |  n\_missing|  complete\_rate| min        | max        | median     |  n\_unique|
 |:---------------|-----------:|---------------:|:-----------|:-----------|:-----------|----------:|
-| report\_date   |           0|               1| 2020-02-26 | 2022-04-02 | 2022-03-11 |        664|
+| report\_date   |           0|               1| 2020-02-26 | 2022-04-03 | 2022-03-12 |        665|
+
+**Variable type: logical**
+
+| skim\_variable |  n\_missing|  complete\_rate|  mean| count |
+|:---------------|-----------:|---------------:|-----:|:------|
+| historical     |      703467|               0|   NaN| :     |
 
 ## DHB summaries
 
@@ -82,7 +92,7 @@ cases_by_dhb_df <- cases_df %>%
 cases_by_dhb_df
 ```
 
-    ## # A tibble: 3,546 x 4
+    ## # A tibble: 3,572 x 4
     ##    report_date dhb               case_status     n
     ##    <date>      <chr>             <chr>       <int>
     ##  1 2020-02-26  Auckland          Confirmed       1
@@ -95,15 +105,15 @@ cases_by_dhb_df
     ##  8 2020-03-12  Counties Manukau  Confirmed       1
     ##  9 2020-03-13  Southern          Confirmed       1
     ## 10 2020-03-14  Capital and Coast Confirmed       1
-    ## # ... with 3,536 more rows
+    ## # ... with 3,562 more rows
 
 ## Wellington figures
 
-It might be good to add Hutt to CCDHB later.
+Include Hutt and Wairarapa as well as CCDHB.
 
 ``` r
 dhb_cases_df <- cases_by_dhb_df %>% 
-  filter(dhb == dhb_name) %>% 
+  filter(dhb %in% dhb_names) %>% 
   filter(report_date >= ymd(20220201)) %>% 
   group_by(report_date, dhb) %>% 
   summarise(cases = sum(n, na.rm = FALSE))
@@ -117,12 +127,14 @@ wfh_start_date <- ymd(20220221)
 dhb_cases_df %>%
   ggplot() +
   geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
-  geom_line(aes(x = report_date, y = cases)) +
-  geom_point(aes(x = report_date, y = cases)) +
+  geom_col(aes(x = report_date, y = cases, fill = dhb), position = "stack", width = 0.8) +
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
-  labs(x = "", y= "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
-  theme_minimal()
+  scale_fill_viridis_d(option = "D", guide = guide_legend(title = "DHB")) +
+  labs(x = "", y= "",
+       title = str_glue("Daily COVID-19 Cases for {dhb_names_label} DHBs")) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
 ```
 
 ![](covid-time-series_files/figure-markdown_github/wellington-1.png)
@@ -136,6 +148,8 @@ To best capture the weekly seasonality, it might be best to start modelling from
 model_start_date <- ymd(20220301)
 
 dhb_cases_ts <- dhb_cases_df %>% 
+  group_by(report_date) %>% 
+  summarise(cases = sum(cases, na.rm = FALSE)) %>% 
   ungroup() %>% 
   filter(report_date >= model_start_date) %>% 
   select(report_date, cases) %>% 
@@ -144,7 +158,7 @@ dhb_cases_ts <- dhb_cases_df %>%
   replace_na(list(cases = 0))
 
 dhb_cases_stl <- dhb_cases_ts %>% 
-  model(STL(cases ~ trend(window = 7 * 3) + season(period = "1 week", window = Inf))) %>% 
+  model(STL(cases ~ trend(window = 7 * 2) + season(period = "1 week", window = Inf))) %>% 
   components()
 
 dhb_cases_stl %>% 
@@ -160,12 +174,13 @@ dhb_cases_stl %>%
   # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
   geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
   geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
-  # geom_line(aes(x = report_date, y = cases)) +
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
-  theme_minimal()
+  labs(x = "", y= "",
+       title = str_glue("Daily COVID-19 Cases for {dhb_names_label} DHBs")) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
 ```
 
 ![](covid-time-series_files/figure-markdown_github/seasonally-adjusted-1.png)

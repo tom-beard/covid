@@ -19,7 +19,9 @@ library(feasts)
 
 ```{r init}
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-dhb_name <- "Capital and Coast"
+dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+dhb_names_label <- glue::glue_collapse(dhb_names, sep = ", ", last = " and ")
+
 ```
 
 ## Download latest data
@@ -47,11 +49,11 @@ cases_by_dhb_df
 
 ## Wellington figures
 
-It might be good to add Hutt to CCDHB later.
+Include Hutt and Wairarapa as well as CCDHB.
 
 ```{r wellington}
 dhb_cases_df <- cases_by_dhb_df %>% 
-  filter(dhb == dhb_name) %>% 
+  filter(dhb %in% dhb_names) %>% 
   filter(report_date >= ymd(20220201)) %>% 
   group_by(report_date, dhb) %>% 
   summarise(cases = sum(n, na.rm = FALSE))
@@ -61,12 +63,14 @@ wfh_start_date <- ymd(20220221)
 dhb_cases_df %>%
   ggplot() +
   geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
-  geom_line(aes(x = report_date, y = cases)) +
-  geom_point(aes(x = report_date, y = cases)) +
+  geom_col(aes(x = report_date, y = cases, fill = dhb), position = "stack", width = 0.8) +
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
-  labs(x = "", y= "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
-  theme_minimal()
+  scale_fill_viridis_d(option = "D", guide = guide_legend(title = "DHB")) +
+  labs(x = "", y= "",
+       title = str_glue("Daily COVID-19 Cases for {dhb_names_label} DHBs")) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
   
 ```
 
@@ -80,6 +84,8 @@ To best capture the weekly seasonality, it might be best to start modelling from
 model_start_date <- ymd(20220301)
 
 dhb_cases_ts <- dhb_cases_df %>% 
+  group_by(report_date) %>% 
+  summarise(cases = sum(cases, na.rm = FALSE)) %>% 
   ungroup() %>% 
   filter(report_date >= model_start_date) %>% 
   select(report_date, cases) %>% 
@@ -88,7 +94,7 @@ dhb_cases_ts <- dhb_cases_df %>%
   replace_na(list(cases = 0))
 
 dhb_cases_stl <- dhb_cases_ts %>% 
-  model(STL(cases ~ trend(window = 7 * 3) + season(period = "1 week", window = Inf))) %>% 
+  model(STL(cases ~ trend(window = 7 * 2) + season(period = "1 week", window = Inf))) %>% 
   components()
 
 dhb_cases_stl %>% 
@@ -104,12 +110,13 @@ dhb_cases_stl %>%
   # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
   geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
   geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
-  # geom_line(aes(x = report_date, y = cases)) +
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = str_glue("Daily COVID-19 Cases for {dhb_name} DHB")) +
-  theme_minimal()
+  labs(x = "", y= "",
+       title = str_glue("Daily COVID-19 Cases for {dhb_names_label} DHBs")) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
 
 ```
 
