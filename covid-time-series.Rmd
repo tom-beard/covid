@@ -145,4 +145,48 @@ While the trend is possibly over-smoothed, the peak coincinded with the strong w
 
 The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak in these DHBs.
 
-For a more rigorous analysis, and before trying any forecasting, we should do a log + 1 transform to allow for multiplicative seasonality.
+## Log-transformed time series
+
+For a more rigorous analysis, and before trying any forecasting, we should do a log + 1 transform to allow for multiplicative seasonality. This is especially important now that cases are falling.
+
+```{r log-transform}
+y_transform <- log1p
+inverse_transform <- expm1
+
+dhb_cases_transformed_ts <- dhb_cases_ts %>% 
+  mutate(y = y_transform(cases))
+
+dhb_cases_transformed_stl <- dhb_cases_transformed_ts %>% 
+  model(STL(y ~ trend(window = 7 * 2) + season(period = "1 week", window = Inf))) %>% 
+  components()
+
+dhb_cases_transformed_stl %>% 
+  autoplot() +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+
+dhb_cases_after_transform_stl_df <- dhb_cases_transformed_stl %>% 
+  select(report_date, y, trend, season_adjust) %>% 
+  as_tibble() %>% 
+  mutate(across(where(is.numeric), inverse_transform)) %>% 
+  rename(cases = y)
+
+dhb_cases_after_transform_stl_df %>% 
+  ggplot() +
+  # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
+  geom_hline(yintercept = 0, colour = "grey50") +
+  geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
+  geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
+  geom_point(aes(x = report_date, y = cases)) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  scale_y_continuous(limits = c(0, NA)) +
+  labs(x = "", y= "", title = "Total daily COVID-19 Cases",
+       subtitle = str_glue("For {dhb_names_label} DHBs\n", 
+                           "Red line: cases adjusted for weekly pattern. Blue line: trend component."),
+       caption = str_glue("Source: {case_data_url}")) +
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank())
+
+
+```
+
