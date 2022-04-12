@@ -16,7 +16,7 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 774928 Columns: 7
+    ## Rows: 786058 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
@@ -144,7 +144,7 @@ maxima <- dhb_cases_stl_df %>%
 
 Looking at raw case numbers, the peak on 2022-03-09 was about 3.9 times what it is now.
 
-But when adjusting for the weekly pattern, it was 2.9 times the current adjusted value, and the trend was about 2.5 times the current trend line.
+But when adjusting for the weekly pattern, it was 3.6 times the current adjusted value, and the trend was about 2.8 times the current trend line.
 
 While the trend is possibly over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
