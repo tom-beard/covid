@@ -55,6 +55,9 @@ dhb_cases_df <- cases_by_dhb_df %>%
 
 wfh_start_date <- ymd(20220221)
 
+dhb_pal <- scales::seq_gradient_pal(low = "steelblue", high = "grey70")(seq(0, 1,length.out = length(dhb_names))) %>% 
+  rev()
+
 dhb_cases_df %>%
   ggplot() +
   geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
@@ -62,7 +65,7 @@ dhb_cases_df %>%
   geom_col(aes(x = report_date, y = cases, fill = dhb), position = "stack", width = 0.8) +
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
-  scale_fill_viridis_d(option = "D", guide = guide_legend(title = "DHB")) +
+  scale_fill_manual(values = dhb_pal, guide = guide_legend(title = "DHB")) +
   labs(x = "", y= "", title = "Daily COVID-19 Cases",
        subtitle = str_glue("for {dhb_names_label} DHBs"),
        caption = str_glue("Source: {case_data_url}")) +
@@ -93,9 +96,9 @@ dhb_cases_stl <- dhb_cases_ts %>%
   components()
 
 dhb_cases_stl %>% 
-  autoplot() +
+  autoplot(colour = "steelblue", size = 1) +
   theme_minimal() +
-  theme(panel.grid.minor = element_blank())
+  theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
 
 ```
 
@@ -119,6 +122,7 @@ dhb_cases_stl_df %>%
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
   theme(panel.grid.minor = element_blank())
+
 ```
 
 ## Comparison to peak cases
@@ -161,9 +165,9 @@ dhb_cases_transformed_stl <- dhb_cases_transformed_ts %>%
   components()
 
 dhb_cases_transformed_stl %>% 
-  autoplot() +
+  autoplot(colour = "steelblue", size = 1) +
   theme_minimal() +
-  theme(panel.grid.minor = element_blank())
+  theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
 
 dhb_cases_after_transform_stl_df <- dhb_cases_transformed_stl %>% 
   select(report_date, y, trend, season_adjust) %>% 

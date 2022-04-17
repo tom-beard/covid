@@ -16,14 +16,11 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Warning: One or more parsing issues, see `problems()` for details
-
-    ## Rows: 818882 Columns: 7
+    ## Rows: 824867 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
-    ## lgl  (1): Historical
+    ## chr  (6): Case Status, Sex, Age group, DHB, Overseas travel, Historical
     ## date (1): Report Date
 
     ## 
@@ -61,6 +58,9 @@ dhb_cases_df <- cases_by_dhb_df %>%
 ``` r
 wfh_start_date <- ymd(20220221)
 
+dhb_pal <- scales::seq_gradient_pal(low = "steelblue", high = "grey70")(seq(0, 1,length.out = length(dhb_names))) %>% 
+  rev()
+
 dhb_cases_df %>%
   ggplot() +
   geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
@@ -68,7 +68,7 @@ dhb_cases_df %>%
   geom_col(aes(x = report_date, y = cases, fill = dhb), position = "stack", width = 0.8) +
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
-  scale_fill_viridis_d(option = "D", guide = guide_legend(title = "DHB")) +
+  scale_fill_manual(values = dhb_pal, guide = guide_legend(title = "DHB")) +
   labs(x = "", y= "", title = "Daily COVID-19 Cases",
        subtitle = str_glue("for {dhb_names_label} DHBs"),
        caption = str_glue("Source: {case_data_url}")) +
@@ -100,9 +100,9 @@ dhb_cases_stl <- dhb_cases_ts %>%
   components()
 
 dhb_cases_stl %>% 
-  autoplot() +
+  autoplot(colour = "steelblue", size = 1) +
   theme_minimal() +
-  theme(panel.grid.minor = element_blank())
+  theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
 ```
 
 ![](covid-time-series_files/figure-markdown_github/basic-ts-1.png)
@@ -147,7 +147,7 @@ maxima <- dhb_cases_stl_df %>%
 
 Looking at raw case numbers, the peak on 2022-03-09 was about 5 times what it is now.
 
-But when adjusting for the weekly pattern, it was 3.8 times the current adjusted value, and the trend was about 3.3 times the current trend line.
+But when adjusting for the weekly pattern, it was 3.8 times the current adjusted value, and the trend was about 3.1 times the current trend line.
 
 While the trend is possibly over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
@@ -171,9 +171,9 @@ dhb_cases_transformed_stl <- dhb_cases_transformed_ts %>%
   components()
 
 dhb_cases_transformed_stl %>% 
-  autoplot() +
+  autoplot(colour = "steelblue", size = 1) +
   theme_minimal() +
-  theme(panel.grid.minor = element_blank())
+  theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
 ```
 
 ![](covid-time-series_files/figure-markdown_github/log-transform-1.png)
