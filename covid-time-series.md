@@ -1,6 +1,8 @@
 COVID-19 time series analysis
 ================
 
+# Exploring COVID-19 time series for Wellington DHBs
+
 ## Initialise
 
 ``` r
@@ -16,7 +18,7 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 824867 Columns: 7
+    ## Rows: 831149 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
@@ -145,15 +147,15 @@ maxima <- dhb_cases_stl_df %>%
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
 ```
 
-Looking at raw case numbers, the peak on 2022-03-09 was about 5 times what it is now.
+Looking at raw case numbers, the peak on 2022-03-09 was about 5 times the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 3.8 times the current adjusted value, and the trend was about 3.1 times the current trend line.
+But when adjusting for the weekly pattern, it was 3.8 times the lowest recent adjusted value, and the trend was about 3.2 times the lowest recent trend line.
 
 While the trend is possibly over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
 ## Notes
 
-The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak in these DHBs.
+The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak for these DHBs.
 
 ## Log-transformed time series
 
