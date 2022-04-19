@@ -1,5 +1,5 @@
 ---
-title: "COVID-19 time series analysis"
+title: "COVID-19 regional time series analysis"
 output: github_document
 ---
 
@@ -16,13 +16,14 @@ library(feasts)
 library(glue)
 ```
 
-# Exploring COVID-19 time series for Wellington DHBs
+# Exploring COVID-19 time series for DHBs
 
 ## Initialise
 
 ```{r init}
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+# dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+dhb_names <- c("Southern")
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 ```
 
@@ -44,11 +45,11 @@ cases_by_dhb_df <- cases_df %>%
 # cases_by_dhb_df
 ```
 
-## Wellington figures
+## Grouping DHBs
 
-Including Hutt and Wairarapa as well as CCDHB.
+Allow for grouping DHBs together (e.g. including Hutt and Wairarapa as well as CCDHB).
 
-```{r wellington}
+```{r dhb-grouping}
 dhb_cases_df <- cases_by_dhb_df %>% 
   filter(dhb %in% dhb_names) %>% 
   filter(report_date >= ymd(20220201)) %>% 

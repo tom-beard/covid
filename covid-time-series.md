@@ -1,13 +1,14 @@
-COVID-19 time series analysis
+COVID-19 regional time series analysis
 ================
 
-# Exploring COVID-19 time series for Wellington DHBs
+# Exploring COVID-19 time series for DHBs
 
 ## Initialise
 
 ``` r
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+# dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+dhb_names <- c("Southern")
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 ```
 
@@ -18,11 +19,14 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 831149 Columns: 7
+    ## Warning: One or more parsing issues, see `problems()` for details
+
+    ## Rows: 839455 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## chr  (6): Case Status, Sex, Age group, DHB, Overseas travel, Historical
+    ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
+    ## lgl  (1): Historical
     ## date (1): Report Date
 
     ## 
@@ -43,9 +47,9 @@ cases_by_dhb_df <- cases_df %>%
 # cases_by_dhb_df
 ```
 
-## Wellington figures
+## Grouping DHBs
 
-Including Hutt and Wairarapa as well as CCDHB.
+Allow for grouping DHBs together (e.g. including Hutt and Wairarapa as well as CCDHB).
 
 ``` r
 dhb_cases_df <- cases_by_dhb_df %>% 
@@ -78,7 +82,7 @@ dhb_cases_df %>%
   theme(panel.grid.minor = element_blank())
 ```
 
-![](covid-time-series_files/figure-markdown_github/wellington-1.png)
+![](covid-time-series_files/figure-markdown_github/dhb-grouping-1.png)
 
 ## Basic timeseries analysis
 
@@ -147,9 +151,9 @@ maxima <- dhb_cases_stl_df %>%
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
 ```
 
-Looking at raw case numbers, the peak on 2022-03-09 was about 5 times the lowest recent value.
+Looking at raw case numbers, the peak on 2022-03-22 was about 2.3 times the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 3.8 times the lowest recent adjusted value, and the trend was about 3.2 times the lowest recent trend line.
+But when adjusting for the weekly pattern, it was 1.9 times the lowest recent adjusted value, and the trend was about 1.5 times the lowest recent trend line.
 
 While the trend is possibly over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
