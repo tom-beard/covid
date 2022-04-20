@@ -18,7 +18,7 @@ library(glue)
 
 # Exploring COVID-19 time series for Wellington DHBs
 
-Focusing on trends and seasonality after the early 2022 Omicron peak
+Focusing on trends and seasonality after the early 2022 Omicron peak.
 
 ## Initialise
 
@@ -38,11 +38,13 @@ model_start_date <- ymd(20220301)
 cases_df <- read_csv(case_data_url) %>% 
   clean_names()
 
+latest_report_date <- cases_df %>% pull(report_date) %>% max()
+
 cases_by_dhb_df <- cases_df %>% 
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures
+## Wellington figures up to `r latest_report_date`.
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -95,14 +97,13 @@ dhb_cases_after_transform_stl_df <- dhb_cases_transformed_stl %>%
 
 dhb_cases_after_transform_stl_df %>% 
   ggplot() +
-  # geom_vline(xintercept = wfh_start_date, colour = "firebrick") +
   geom_hline(yintercept = 0, colour = "grey50") +
   geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
   geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = "Total daily COVID-19 Cases",
+  labs(x = "", y= "", title = str_glue("Total daily COVID-19 Cases to {latest_report_date}"),
        subtitle = str_glue("For {dhb_names_label} DHBs\n", 
                            "Red line: cases adjusted for weekly pattern. Blue line: trend component."),
        caption = str_glue("Source: {case_data_url}")) +
@@ -162,3 +163,4 @@ While the trend might be over-smoothed, the peak coincinded with the strong week
 ## Notes
 
 The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak for these DHBs.
+
