@@ -26,7 +26,7 @@ cases_df <- read_csv(case_data_url) %>%
 
     ## Warning: One or more parsing issues, see `problems()` for details
 
-    ## Rows: 850747 Columns: 7
+    ## Rows: 861118 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
@@ -45,7 +45,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 2022-04-19.
+## Wellington figures up to 2022-04-20.
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -109,8 +109,8 @@ dhb_cases_after_transform_stl_df %>%
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = str_glue("Total daily COVID-19 Cases to {latest_report_date}"),
-       subtitle = str_glue("For {dhb_names_label} DHBs\n", 
+  labs(x = "", y= "", title = str_glue("Total daily COVID-19 cases to {latest_report_date}"),
+       subtitle = str_glue("F\for {dhb_names_label} DHBs\n", 
                            "Red line: cases adjusted for weekly pattern. Blue line: trend component."),
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
@@ -137,7 +137,7 @@ dhb_cases_df %>%
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_fill_manual(values = dhb_pal, guide = guide_legend(title = "DHB")) +
-  labs(x = "", y= "", title = "Daily COVID-19 Cases",
+  labs(x = "", y= "", title = str_glue("Daily COVID-19 cases to {latest_report_date}"),
        subtitle = str_glue("for {dhb_names_label} DHBs"),
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
@@ -162,7 +162,7 @@ maxima <- dhb_cases_after_transform_stl_df %>%
 
 Looking at raw case numbers, the peak on 2022-03-09 was about 5 times the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 4.3 times the lowest recent adjusted value, and the trend was about 3.3 times the lowest recent trend line.
+But when adjusting for the weekly pattern, it was 4.3 times the lowest recent adjusted value, and the trend was about 3.2 times the lowest recent trend line.
 
 While the trend might be over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 

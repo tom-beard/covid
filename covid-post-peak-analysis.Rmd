@@ -103,8 +103,8 @@ dhb_cases_after_transform_stl_df %>%
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = str_glue("Total daily COVID-19 Cases to {latest_report_date}"),
-       subtitle = str_glue("For {dhb_names_label} DHBs\n", 
+  labs(x = "", y= "", title = str_glue("Total daily COVID-19 cases to {latest_report_date}"),
+       subtitle = str_glue("F\for {dhb_names_label} DHBs\n", 
                            "Red line: cases adjusted for weekly pattern. Blue line: trend component."),
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
@@ -130,7 +130,7 @@ dhb_cases_df %>%
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_fill_manual(values = dhb_pal, guide = guide_legend(title = "DHB")) +
-  labs(x = "", y= "", title = "Daily COVID-19 Cases",
+  labs(x = "", y= "", title = str_glue("Daily COVID-19 cases to {latest_report_date}"),
        subtitle = str_glue("for {dhb_names_label} DHBs"),
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
