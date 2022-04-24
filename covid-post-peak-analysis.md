@@ -12,6 +12,10 @@ case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/c
 dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 
+nice_date_format <- function(input_date) {
+  str_trim(format(input_date, '%e %b %Y'))
+}
+
 analysis_start_date <- ymd(20220201)
 wfh_start_date <- ymd(20220221)
 model_start_date <- ymd(20220301)
@@ -42,7 +46,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 2022-04-23.
+## Wellington figures up to 23 Apr 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -85,6 +89,8 @@ dhb_cases_transformed_stl <- dhb_cases_transformed_ts %>%
 
 dhb_cases_transformed_stl %>% 
   autoplot(colour = "steelblue", size = 1) +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  labs(x = "report date") +
   theme_minimal() +
   theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
 ```
@@ -106,8 +112,8 @@ dhb_cases_after_transform_stl_df %>%
   geom_point(aes(x = report_date, y = cases)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_y_continuous(limits = c(0, NA)) +
-  labs(x = "", y= "", title = str_glue("Total daily COVID-19 cases to {latest_report_date}"),
-       subtitle = str_glue("F\for {dhb_names_label} DHBs\n", 
+  labs(x = "", y = "", title = str_glue("Total daily COVID-19 cases to {nice_date_format(latest_report_date)}"),
+       subtitle = str_glue("for {dhb_names_label} DHBs\n", 
                            "Red line: cases adjusted for weekly pattern. Blue line: trend component."),
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
@@ -134,7 +140,7 @@ dhb_cases_df %>%
   scale_y_continuous(limits = c(0, NA)) +
   scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
   scale_fill_manual(values = dhb_pal, guide = guide_legend(title = "DHB")) +
-  labs(x = "", y= "", title = str_glue("Daily COVID-19 cases to {latest_report_date}"),
+  labs(x = "", y = "", title = str_glue("Daily COVID-19 cases to {nice_date_format(latest_report_date)}"),
        subtitle = str_glue("for {dhb_names_label} DHBs"),
        caption = str_glue("Source: {case_data_url}")) +
   theme_minimal() +
@@ -157,7 +163,7 @@ maxima <- dhb_cases_after_transform_stl_df %>%
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
 ```
 
-Looking at raw case numbers, the peak on 2022-03-09 was about 5.2 times the lowest recent value.
+Looking at raw case numbers, the peak on 9 Mar 2022 was about 5.2 times the lowest recent value.
 
 But when adjusting for the weekly pattern, it was 4.3 times the lowest recent adjusted value, and the trend was about 3.1 times the lowest recent trend line.
 
