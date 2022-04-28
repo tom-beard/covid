@@ -19,14 +19,11 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Warning: One or more parsing issues, see `problems()` for details
-
-    ## Rows: 896495 Columns: 7
+    ## Rows: 915522 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
-    ## lgl  (1): Historical
+    ## chr  (6): Case Status, Sex, Age group, DHB, Overseas travel, Historical
     ## date (1): Report Date
 
     ## 
@@ -153,7 +150,7 @@ maxima <- dhb_cases_stl_df %>%
 
 Looking at raw case numbers, the peak on 2022-03-22 was about 2.5 times the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 2.1 times the lowest recent adjusted value, and the trend was about 1.3 times the lowest recent trend line.
+But when adjusting for the weekly pattern, it was 2.1 times the lowest recent adjusted value, and the trend was about 1.4 times the lowest recent trend line.
 
 While the trend is possibly over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
