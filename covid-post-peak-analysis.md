@@ -28,11 +28,14 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 989946 Columns: 7
+    ## Warning: One or more parsing issues, see `problems()` for details
+
+    ## Rows: 1005674 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
-    ## chr  (6): Case Status, Sex, Age group, DHB, Overseas travel, Historical
+    ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
+    ## lgl  (1): Historical
     ## date (1): Report Date
 
     ## 
@@ -46,7 +49,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 7 May 2022
+## Wellington figures up to 9 May 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -165,7 +168,7 @@ maxima <- dhb_cases_after_transform_stl_df %>%
 
 Looking at raw case numbers, the peak on 9 Mar 2022 was about 5.7 times the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 5.1 times the lowest recent adjusted value, and the trend was about 3.6 times the lowest recent trend line.
+But when adjusting for the weekly pattern, it was 5.2 times the lowest recent adjusted value, and the trend was about 3.6 times the lowest recent trend line.
 
 While the trend might be over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
