@@ -21,7 +21,7 @@ cases_df <- read_csv(case_data_url) %>%
 
     ## Warning: One or more parsing issues, see `problems()` for details
 
-    ## Rows: 1013721 Columns: 7
+    ## Rows: 1030733 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
