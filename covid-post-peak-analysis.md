@@ -30,7 +30,7 @@ cases_df <- read_csv(case_data_url) %>%
 
     ## Warning: One or more parsing issues, see `problems()` for details
 
-    ## Rows: 1143146 Columns: 7
+    ## Rows: 1148045 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
@@ -49,7 +49,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 27 May 2022
+## Wellington figures up to 28 May 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
