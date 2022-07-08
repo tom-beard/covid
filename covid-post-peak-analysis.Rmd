@@ -24,7 +24,8 @@ Focusing on trends and seasonality after the early 2022 Omicron peak.
 
 ```{r init}
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+# dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+dhb_names <- c("Capital & Coast/Hutt", "Wairarapa") # DHB name changes
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 
 nice_date_format <- function(input_date) {

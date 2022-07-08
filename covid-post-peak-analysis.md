@@ -9,7 +9,8 @@ Focusing on trends and seasonality after the early 2022 Omicron peak.
 
 ``` r
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+# dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
+dhb_names <- c("Capital & Coast/Hutt", "Wairarapa") # DHB name changes
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 
 nice_date_format <- function(input_date) {
@@ -30,7 +31,7 @@ cases_df <- read_csv(case_data_url) %>%
 
     ## Warning: One or more parsing issues, see `problems()` for details
 
-    ## Rows: 1357862 Columns: 7
+    ## Rows: 1412642 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
@@ -49,7 +50,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 2 Jul 2022
+## Wellington figures up to 7 Jul 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -168,7 +169,7 @@ maxima <- dhb_cases_after_transform_stl_df %>%
 
 Looking at raw case numbers, the peak on 9 Mar 2022 was about 6.2 times the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 5.2 times the lowest recent adjusted value, and the trend was about 3.9 times the lowest recent trend line.
+But when adjusting for the weekly pattern, it was 5.1 times the lowest recent adjusted value, and the trend was about 3.9 times the lowest recent trend line.
 
 While the trend might be over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
 
