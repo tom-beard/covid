@@ -31,7 +31,7 @@ cases_df <- read_csv(case_data_url) %>%
 
     ## Warning: One or more parsing issues, see `problems()` for details
 
-    ## Rows: 1412642 Columns: 7
+    ## Rows: 1429924 Columns: 7
 
     ## -- Column specification --------------------------------------------------------
     ## Delimiter: ","
@@ -50,7 +50,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 7 Jul 2022
+## Wellington figures up to 9 Jul 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -93,7 +93,7 @@ dhb_cases_transformed_stl <- dhb_cases_transformed_ts %>%
 
 dhb_cases_transformed_stl %>% 
   autoplot(colour = "steelblue", size = 1) +
-  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d\n%b") +
   labs(x = "report date") +
   theme_minimal() +
   theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
@@ -114,7 +114,7 @@ dhb_cases_after_transform_stl_df %>%
   geom_line(aes(x = report_date, y = season_adjust), colour = "firebrick", size = 1) +
   geom_line(aes(x = report_date, y = trend), colour = "steelblue", size = 1) +
   geom_point(aes(x = report_date, y = cases)) +
-  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d\n%b") +
   scale_y_continuous(limits = c(0, NA)) +
   labs(x = "", y = "", title = str_glue("Total daily COVID-19 cases to {nice_date_format(latest_report_date)}"),
        subtitle = str_glue("for {dhb_names_label} DHBs\n", 
@@ -142,7 +142,7 @@ dhb_cases_df %>%
   geom_line(data = dhb_cases_after_transform_stl_df,
             aes(x = report_date, y = trend), colour = "firebrick", size = 1) +
   scale_y_continuous(limits = c(0, NA)) +
-  scale_x_date(date_breaks = "1 week", date_labels = "%d %b") +
+  scale_x_date(date_breaks = "1 week", date_labels = "%d\n%b") +
   scale_fill_manual(values = dhb_pal, guide = guide_legend(title = "DHB")) +
   labs(x = "", y = "", title = str_glue("Daily COVID-19 cases to {nice_date_format(latest_report_date)}"),
        subtitle = str_glue("for {dhb_names_label} DHBs"),
