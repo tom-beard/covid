@@ -29,17 +29,15 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 1671922 Columns: 7
-
-    ## -- Column specification --------------------------------------------------------
+    ## Rows: 1687705 Columns: 7
+    ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
     ## lgl  (1): Historical
     ## date (1): Report Date
-
     ## 
-    ## i Use `spec()` to retrieve the full column specification for this data.
-    ## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
 latest_report_date <- cases_df %>% pull(report_date) %>% max()
@@ -48,7 +46,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 9 Aug 2022
+## Wellington figures up to 13 Aug 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -60,13 +58,17 @@ dhb_cases_df <- cases_by_dhb_df %>%
   summarise(cases = sum(n, na.rm = FALSE))
 ```
 
-    ## `summarise()` has grouped output by 'report_date'. You can override using the `.groups` argument.
+    ## `summarise()` has grouped output by 'report_date'. You can override using the
+    ## `.groups` argument.
 
 ## Timeseries analysis
 
-To best capture the weekly seasonality, it might be best to start modelling from about the time that the reporting process was changed by RATs: probably about the beginning of March.
+To best capture the weekly seasonality, it might be best to start
+modelling from about the time that the reporting process was changed by
+RATs: probably about the beginning of March.
 
-We first do a log + 1 transform to allow for multiplicative seasonality. This is especially important now that cases are falling.
+We first do a log + 1 transform to allow for multiplicative seasonality.
+This is especially important now that cases are falling.
 
 ``` r
 y_transform <- log1p
@@ -97,7 +99,7 @@ dhb_cases_transformed_stl %>%
   theme(panel.grid.minor = element_blank(), panel.spacing.y = unit(1, "lines"))
 ```
 
-![](covid-post-peak-analysis_files/figure-markdown_github/ts-analysis-1.png)
+![](covid-post-peak-analysis_files/figure-gfm/ts-analysis-1.png)<!-- -->
 
 ``` r
 dhb_cases_after_transform_stl_df <- dhb_cases_transformed_stl %>% 
@@ -122,7 +124,7 @@ dhb_cases_after_transform_stl_df %>%
   theme(panel.grid.minor = element_blank())
 ```
 
-![](covid-post-peak-analysis_files/figure-markdown_github/ts-analysis-2.png)
+![](covid-post-peak-analysis_files/figure-gfm/ts-analysis-2.png)<!-- -->
 
 ## Summary visualisation
 
@@ -149,7 +151,7 @@ dhb_cases_df %>%
   theme(panel.grid.minor = element_blank(), legend.position = "bottom")
 ```
 
-![](covid-post-peak-analysis_files/figure-markdown_github/combined-vis-1.png)
+![](covid-post-peak-analysis_files/figure-gfm/combined-vis-1.png)<!-- -->
 
 ## Comparison to peak cases
 
@@ -165,12 +167,22 @@ maxima <- dhb_cases_after_transform_stl_df %>%
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
 ```
 
-Looking at raw case numbers, the peak on 9 Mar 2022 was about 8.2 times the lowest recent value.
+Looking at raw case numbers, the peak on 9 Mar 2022 was about 14.5 times
+the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 7.2 times the lowest recent adjusted value, and the trend was about 6.4 times the lowest recent trend line.
+But when adjusting for the weekly pattern, it was 10.2 times the lowest
+recent adjusted value, and the trend was about 8.6 times the lowest
+recent trend line.
 
-While the trend might be over-smoothed, the peak coincinded with the strong weekly pattern, suggesting that the apparent difference between the peak and now was exaggerated by weekly differences in reporting.
+While the trend might be over-smoothed, the peak coincinded with the
+strong weekly pattern, suggesting that the apparent difference between
+the peak and now was exaggerated by weekly differences in reporting.
 
 ## Notes
 
-The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak for these DHBs.
+The true case numbers are likely higher than reported, but the shape of
+the curve is more important for this analysis than the absolute numbers.
+There was also likely to have been a change in reporting rates when use
+of RATs became widespread, so comparing case numbers before and after
+that would be problematic, but this was well before the peak for these
+DHBs.
