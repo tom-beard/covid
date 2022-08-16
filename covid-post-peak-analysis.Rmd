@@ -67,7 +67,6 @@ To best capture the weekly seasonality, it might be best to start modelling from
 
 We first do a log + 1 transform to allow for multiplicative seasonality. This is especially important now that cases are falling.
 
-
 ```{r ts-analysis}
 y_transform <- log1p
 inverse_transform <- expm1
@@ -145,7 +144,6 @@ dhb_cases_df %>%
 
 ```
 
-
 ## Comparison to peak cases
 
 ```{r peak-comparison}
@@ -169,4 +167,3 @@ While the trend might be over-smoothed, the peak coincinded with the strong week
 ## Notes
 
 The true case numbers are likely higher than reported, but the shape of the curve is more important for this analysis than the absolute numbers. There was also likely to have been a change in reporting rates when use of RATs became widespread, so comparing case numbers before and after that would be problematic, but this was well before the peak for these DHBs.
-
