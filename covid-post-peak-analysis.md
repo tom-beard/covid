@@ -9,12 +9,17 @@ Focusing on trends and seasonality after the early 2022 Omicron peak.
 
 ``` r
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-# dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
 dhb_names <- c("Capital & Coast/Hutt", "Wairarapa") # DHB name changes
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 
 nice_date_format <- function(input_date) {
   str_trim(format(input_date, '%e %b %Y'))
+}
+
+blue_grey_pal <- function(num_steps) {
+  scales::seq_gradient_pal(low = "steelblue",
+                           high = "grey70")(seq(0, 1, length.out = num_steps)) %>% 
+    rev()
 }
 
 analysis_start_date <- ymd(20220201)
@@ -29,7 +34,7 @@ cases_df <- read_csv(case_data_url) %>%
   clean_names()
 ```
 
-    ## Rows: 1709541 Columns: 7
+    ## Rows: 1715165 Columns: 7
     ## ── Column specification ────────────────────────────────────────────────────────
     ## Delimiter: ","
     ## chr  (5): Case Status, Sex, Age group, DHB, Overseas travel
@@ -46,7 +51,7 @@ cases_by_dhb_df <- cases_df %>%
   count(report_date, dhb, case_status)
 ```
 
-## Wellington figures up to 18 Aug 2022
+## Wellington figures up to 20 Aug 2022
 
 Including Hutt and Wairarapa as well as CCDHB.
 
@@ -129,8 +134,7 @@ dhb_cases_after_transform_stl_df %>%
 ## Summary visualisation
 
 ``` r
-dhb_pal <- scales::seq_gradient_pal(low = "steelblue", high = "grey70")(seq(0, 1,length.out = length(dhb_names))) %>% 
-  rev()
+dhb_pal <- blue_grey_pal(length(dhb_names))
 
 dhb_cases_df %>%
   ggplot() +
@@ -167,11 +171,11 @@ maxima <- dhb_cases_after_transform_stl_df %>%
   summarise(cases = max(cases), adjusted = max(season_adjust), trend = max(trend))
 ```
 
-Looking at raw case numbers, the peak on 9 Mar 2022 was about 13.8 times
+Looking at raw case numbers, the peak on 9 Mar 2022 was about 16 times
 the lowest recent value.
 
-But when adjusting for the weekly pattern, it was 9.7 times the lowest
-recent adjusted value, and the trend was about 7.8 times the lowest
+But when adjusting for the weekly pattern, it was 11.2 times the lowest
+recent adjusted value, and the trend was about 8.5 times the lowest
 recent trend line.
 
 While the trend might be over-smoothed, the peak coincinded with the

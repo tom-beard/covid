@@ -24,12 +24,17 @@ Focusing on trends and seasonality after the early 2022 Omicron peak.
 
 ```{r init}
 case_data_url <- "https://github.com/minhealthnz/nz-covid-data/blob/main/cases/covid-cases.csv?raw=true"
-# dhb_names <- c("Capital and Coast", "Hutt Valley", "Wairarapa")
 dhb_names <- c("Capital & Coast/Hutt", "Wairarapa") # DHB name changes
 dhb_names_label <- glue_collapse(dhb_names, sep = ", ", last = " and ")
 
 nice_date_format <- function(input_date) {
   str_trim(format(input_date, '%e %b %Y'))
+}
+
+blue_grey_pal <- function(num_steps) {
+  scales::seq_gradient_pal(low = "steelblue",
+                           high = "grey70")(seq(0, 1, length.out = num_steps)) %>% 
+    rev()
 }
 
 analysis_start_date <- ymd(20220201)
@@ -121,8 +126,7 @@ dhb_cases_after_transform_stl_df %>%
 ## Summary visualisation
 
 ```{r combined-vis}
-dhb_pal <- scales::seq_gradient_pal(low = "steelblue", high = "grey70")(seq(0, 1,length.out = length(dhb_names))) %>% 
-  rev()
+dhb_pal <- blue_grey_pal(length(dhb_names))
 
 dhb_cases_df %>%
   ggplot() +
